@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>To-Do Web App</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f4f8;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 40px auto;
+      background: white;
+      padding: 30px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+      border-radius: 8px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+
+    .input-section {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+
+    button {
+      margin-left: 10px;
+      padding: 10px 20px;
+      background-color: #27ae60;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #219150;
+    }
+
+    .task-section {
+      margin-top: 30px;
+    }
+
+    h2 {
+      color: #34495e;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      background: #ecf0f1;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .task-info {
+      flex: 1;
+    }
+
+    .task-info span {
+      display: block;
+      font-size: 14px;
+      color: #7f8c8d;
+    }
+
+    .actions button {
+      background-color: #3498db;
+      margin-left: 5px;
+    }
+
+    .actions .delete {
+      background-color: #e74c3c;
+    }
+
+    .actions .complete {
+      background-color: #2ecc71;
+    }
+
+    .actions .edit {
+      background-color: #f39c12;
+    }
+
+    .actions button:hover {
+      opacity: 0.85;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>My To-Do List</h1>
+    <div class="input-section">
+      <input type="text" id="taskInput" placeholder="Add your task here...">
+      <button onclick="addTask()">Add</button>
+    </div>
+
+    <div class="task-section">
+      <h2>Pending Tasks</h2>
+      <ul id="pendingList"></ul>
+    </div>
+
+    <div class="task-section">
+      <h2>Completed Tasks</h2>
+      <ul id="completedList"></ul>
+    </div>
+  </div>
+
+  <script>
+    let tasks = [];
+
+    function addTask() {
+      const input = document.getElementById('taskInput');
+      const taskText = input.value.trim();
+
+      if (taskText === '') {
+        alert("Task can't be empty!");
+        return;
+      }
+
+      const task = {
+        id: Date.now(),
+        text: taskText,
+        completed: false,
+        createdAt: new Date().toLocaleString(),
+        completedAt: null
+      };
+
+      tasks.push(task);
+      input.value = '';
+      renderTasks();
+    }
+
+    function deleteTask(id) {
+      tasks = tasks.filter(task => task.id !== id);
+      renderTasks();
+    }
+
+    function toggleComplete(id) {
+      tasks = tasks.map(task => {
+        if (task.id === id) {
+          task.completed = !task.completed;
+          task.completedAt = task.completed ? new Date().toLocaleString() : null;
+        }
+        return task;
+      });
+      renderTasks();
+    }
+
+    function editTask(id) {
+      const newText = prompt("Edit your task:");
+      if (newText !== null && newText.trim() !== '') {
+        tasks = tasks.map(task => {
+          if (task.id === id) {
+            task.text = newText.trim();
+          }
+          return task;
+        });
+        renderTasks();
+      }
+    }
+
+    function renderTasks() {
+      const pendingList = document.getElementById('pendingList');
+      const completedList = document.getElementById('completedList');
+      pendingList.innerHTML = '';
+      completedList.innerHTML = '';
+
+      tasks.forEach(task => {
+        const li = document.createElement('li');
+        const info = document.createElement('div');
+        info.className = 'task-info';
+        info.innerHTML = `<strong>${task.text}</strong><span>Added: ${task.createdAt}</span>`;
+
+        if (task.completed) {
+          info.innerHTML += `<span>Completed: ${task.completedAt}</span>`;
+        }
+
+        const actions = document.createElement('div');
+        actions.className = 'actions';
+        actions.innerHTML = `
+          <button class="edit" onclick="editTask(${task.id})">Edit</button>
+          <button class="delete" onclick="deleteTask(${task.id})">Delete</button>
+          <button class="complete" onclick="toggleComplete(${task.id})">${task.completed ? 'Undo' : 'Complete'}</button>
+        `;
+
+        li.appendChild(info);
+        li.appendChild(actions);
+
+        if (task.completed) {
+          completedList.appendChild(li);
+        } else {
+          pendingList.appendChild(li);
+        }
+      });
+    }
+
+    // Optional: Save to localStorage (bonus feature)
+    // You can implement this if you want persistence across reloads.
+  </script>
+</body>
+</html>
